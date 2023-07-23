@@ -1,9 +1,15 @@
-import { Text, View } from "react-native";
+import { Header } from "@components/Header";
+import { Container } from "./styles";
+import { Highlight } from "@components/Highlight";
 
 export function Groups() {
     return (
-        <View>
-            <Text>Groups</Text>
-        </View>
+        <Container>
+            <Header/>
+            <Highlight 
+                title="Turmas"
+                subtitle="jogue com a sua turma"
+            />
+        </Container>
     );
 }
