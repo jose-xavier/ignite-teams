@@ -10,6 +10,7 @@ import { ButtonIcon } from "@components/ButtonIcon";
 import { Container, Form, HeaderList, MembersCount } from "./styles";
 import { PlayerCard } from "@components/PlayerCard";
 import { ListEmpty } from "@components/ListEmpty";
+import { Button } from "@components/Button";
 
 
 export function Players() {
@@ -69,6 +70,8 @@ export function Players() {
                         players.length === 0 && {flex: 1}
                     ]}
                 />
+
+                <Button title="Remover turma" type="secondary"/>
         </Container>
     )
 }
