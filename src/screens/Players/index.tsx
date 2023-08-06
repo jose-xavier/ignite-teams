@@ -11,8 +11,11 @@ import { PlayerCard } from "@components/PlayerCard";
 import { ListEmpty } from "@components/ListEmpty";
 import { Button } from "@components/Button";
 
-import { Container, Form, HeaderList, MembersCount } from "./styles";
+import { playerAddByGroup } from "@storage/players/playerAddByGroup";
+import { PlayerStorageDTO } from "@storage/players/PlayerStorageDTO";
 
+import { Container, Form, HeaderList, MembersCount } from "./styles";
+import { playerGetByGroup } from "@storage/players/playerGetByGroup";
 
 type RouteParams = {
     group: string;
@@ -20,11 +23,27 @@ type RouteParams = {
 
 
 export function Players() {
+    const [ newPlayerName, setNewPlayerName ] = useState("")
     const [ team, setTeam ] = useState("time A")
-    const [ players, setPlayers ] = useState(["Netto", "Iury"])
+    const [ players, setPlayers ] = useState<PlayerStorageDTO[]>([])
 
     const route = useRoute()
     const { group } = route.params as RouteParams;
+
+    async function handleAddPlayer() {
+
+        const player = {
+            name: newPlayerName,
+            team,
+        }
+
+        await playerAddByGroup(player, group);
+
+        const storage = await playerGetByGroup(group);
+
+        console.log(storage)
+    }
+
 
     return (
         <Container>
@@ -36,8 +55,12 @@ export function Players() {
             />
 
             <Form>
-                <Input placeholder="Nome do participante"/>
-                <ButtonIcon 
+                <Input
+                    onChangeText={setNewPlayerName} 
+                    placeholder="Nome do participante"
+                />
+                <ButtonIcon
+                    onPress={handleAddPlayer}
                     icon="add"
                     type="primary"
                 />
@@ -61,10 +84,10 @@ export function Players() {
 
         <FlatList 
                     data={players}
-                    keyExtractor={item => item}
+                    keyExtractor={item => item.name}
                     renderItem={({item}) => (
                         <PlayerCard 
-                        name={item}
+                        name={item.name}
                         onRemove={() => { }}
                     />
                     )}

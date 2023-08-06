@@ -19,6 +19,10 @@ export function Groups() {
         navigation.navigate('new')
     }
 
+    function handleGoToPlayersScreen(group: string) {
+        navigation.navigate('players', { group })
+    }
+
     async function fecthGroups() {
         const data = await groupGetAll()
         setGroups(data)
@@ -40,7 +44,10 @@ export function Groups() {
                 data={groups}
                 keyExtractor={item => item}
                 renderItem={({item}) => (
-                    <GroupCard name={item}/>
+                    <GroupCard 
+                        onPress={() => handleGoToPlayersScreen(item)}
+                        name={item}
+                    />
                 )}
                 contentContainerStyle={groups.length === 0 && {flex: 1}}
                 ListEmptyComponent={() => (

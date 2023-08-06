@@ -11,9 +11,6 @@ import { Input } from "@components/Input";
 
 import { Container, Content, Icon } from "./styles";
 import { AppError } from "@utils/AppError";
-import { groupGetAll } from "@storage/group/groupGetAll";
-
-
 
 
 export function NewGroup() {
