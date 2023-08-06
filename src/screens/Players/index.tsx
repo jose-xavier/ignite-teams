@@ -1,5 +1,5 @@
-import { FlatList} from "react-native"
-import { useState } from "react"
+import { Alert, FlatList} from "react-native"
+import { useEffect, useState } from "react"
 import { useRoute } from "@react-navigation/native";
 
 import { Header } from "@components/Header";
@@ -16,6 +16,8 @@ import { PlayerStorageDTO } from "@storage/players/PlayerStorageDTO";
 
 import { Container, Form, HeaderList, MembersCount } from "./styles";
 import { playerGetByGroup } from "@storage/players/playerGetByGroup";
+import { AppError } from "@utils/AppError";
+import { playerGetByGroupAndTeam } from "@storage/players/playerGetByGroupAndTeam";
 
 type RouteParams = {
     group: string;
@@ -30,19 +32,45 @@ export function Players() {
     const route = useRoute()
     const { group } = route.params as RouteParams;
 
-    async function handleAddPlayer() {
 
-        const player = {
+    async function handleAddPlayer() {
+        if(newPlayerName.trim().length === 0) {
+            return Alert.alert("Novo jogador", "Informe o nome do jogador.")
+        }
+
+        const newPlayer = {
             name: newPlayerName,
             team,
         }
 
-        await playerAddByGroup(player, group);
+        try {
 
-        const storage = await playerGetByGroup(group);
+            await playerAddByGroup(newPlayer, group);
+            fetchPlayersByteam();
 
-        console.log(storage)
+        } catch (error) {
+            if(error instanceof AppError) {
+                Alert.alert("Novo jogador", error.message)
+            } else {
+                Alert.alert("Novo jogador", "Não foi possível cadastrar o jogador.")
+            }
+        }
     }
+
+    async function fetchPlayersByteam() {
+        try {
+            const players = await playerGetByGroupAndTeam(group, team);
+            setPlayers(players);
+
+        } catch (error) {
+            Alert.alert("Lista", "Não foi possivel carregar a lista de jogadores");
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        fetchPlayersByteam();
+    }, [players])
 
 
     return (
@@ -58,6 +86,7 @@ export function Players() {
                 <Input
                     onChangeText={setNewPlayerName} 
                     placeholder="Nome do participante"
+                    value={newPlayerName}
                 />
                 <ButtonIcon
                     onPress={handleAddPlayer}
