@@ -1,5 +1,5 @@
-import { Alert, FlatList} from "react-native"
-import { useEffect, useState } from "react"
+import { Alert, FlatList, TextInput} from "react-native"
+import { useEffect, useRef, useState } from "react"
 import { useRoute, useNavigation } from "@react-navigation/native";
 
 import { Header } from "@components/Header";
@@ -38,10 +38,11 @@ export function Players() {
     const route = useRoute()
     const { group } = route.params as RouteParams;
 
+    const newPlayerNameInputRef = useRef<TextInput>(null);
 
     async function handleAddPlayer() {
         if(newPlayerName.trim().length === 0) {
-            return Alert.alert("Novo jogador", "Informe o nome do jogador.")
+            return Alert.alert("Novo jogador", "Informe o nome da pessoa para adicionar.")
         }
 
         const newPlayer = {
@@ -52,13 +53,15 @@ export function Players() {
         try {
 
             await playerAddByGroup(newPlayer, group);
+            newPlayerNameInputRef.current?.blur();
+            setNewPlayerName("");
             fetchPlayersByteam();
 
         } catch (error) {
             if(error instanceof AppError) {
                 Alert.alert("Novo jogador", error.message)
             } else {
-                Alert.alert("Novo jogador", "Não foi possível cadastrar o jogador.")
+                Alert.alert("Novo jogador", "Não foi possível adicionar.")
             }
         }
     }
@@ -80,15 +83,14 @@ export function Players() {
             navigation.navigate("groups");
 
         } catch (error) {
-            Alert.alert("Remover grupo", "Não foi possível remover o grupo.")
+            Alert.alert("Remover grupo", "Não foi possível remover a turma.")
         }
     }
 
     async function handleRemoveGroup() {
-        try {
             Alert.alert(
                 "Remover grupo", 
-                "Realmente deseja remover o grupo?",[
+                "Realmente deseja remover a turma?",[
                 {
                     text: "Não",
                     style:"cancel"
@@ -98,10 +100,6 @@ export function Players() {
                     onPress: () => groupRemove()
                 }
             ])
-        } catch (error) {
-            Alert.alert("Remover grupo", "Não foi possível remover o grupo.");
-            console.log(error);
-        }
     }
 
     async function fetchPlayersByteam() {
@@ -110,7 +108,7 @@ export function Players() {
             setPlayers(players);
 
         } catch (error) {
-            Alert.alert("Lista", "Não foi possivel carregar a lista de jogadores");
+            Alert.alert("Lista", "Não foi possível carregar as pessoas do time selecionado.");
             console.log(error);
         }
     }
@@ -131,9 +129,12 @@ export function Players() {
 
             <Form>
                 <Input
+                    inputRef={newPlayerNameInputRef}
                     onChangeText={setNewPlayerName} 
                     placeholder="Nome do participante"
                     value={newPlayerName}
+                    onSubmitEditing={handleAddPlayer}
+                    returnKeyType="done"
                 />
                 <ButtonIcon
                     onPress={handleAddPlayer}
